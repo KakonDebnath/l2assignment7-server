@@ -336,6 +336,19 @@ async function run() {
         data: result,
       });
     });
+    // get all donors from Donates collection
+    app.get('/api/v1/leaderboard', async (req, res) => {
+      const result = await donatesCollection
+        .find()
+        .sort({ amount: -1 })
+        .toArray();
+      res.json({
+        success: true,
+        status: 200,
+        message: 'All Data Retrieved successfully',
+        data: result,
+      });
+    });
 
     // Start the server
     app.listen(port, () => {

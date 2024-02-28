@@ -30,6 +30,7 @@ async function run() {
     const clothesCollection = db.collection('clothes');
     const donatesCollection = db.collection('donates');
     const aboutUsCollection = db.collection('aboutUs');
+    const testimonialCollection = db.collection('testimonials');
 
     // User Registration
     app.post('/api/v1/register', async (req, res) => {
@@ -341,6 +342,47 @@ async function run() {
       const result = await donatesCollection
         .find()
         .sort({ amount: -1 })
+        .toArray();
+      res.json({
+        success: true,
+        status: 200,
+        message: 'All Data Retrieved successfully',
+        data: result,
+      });
+    });
+
+    // Add new Testimonial to testimonial collection
+    app.post('/api/v1/create-testimonial', async (req, res) => {
+      // console.log(req.body);
+      const email = req.body.email;
+      const user = await userCollection.findOne({ email });
+      // check if user is already existing or not
+      if (!user || user.isDeleted === true) {
+        return res.status(401).json({
+          message: `This User ${req.body.email} is not exists in db`,
+        });
+      }
+      const testimonialData = {
+        email,
+        ...req.body,
+        userId: user._id,
+      };
+
+      // Insert clothes data into the database
+      const result = await testimonialCollection.insertOne(testimonialData);
+
+      res.json({
+        success: true,
+        status: 201,
+        message: 'Data created successfully',
+        data: result,
+      });
+    });
+
+    // get all testimonials for the testimonial section
+    app.get('/api/v1/testimonials', async (req, res) => {
+      const result = await testimonialCollection
+        .find()
         .toArray();
       res.json({
         success: true,

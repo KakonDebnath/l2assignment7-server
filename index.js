@@ -28,6 +28,7 @@ async function run() {
     const db = client.db('l2assignment7');
     const userCollection = db.collection('users');
     const clothesCollection = db.collection('clothes');
+    const donatesCollection = db.collection('donates');
     const aboutUsCollection = db.collection('aboutUs');
 
     // User Registration
@@ -304,6 +305,34 @@ async function run() {
         success: true,
         status: 200,
         message: 'All Data Retrieved successfully',
+        data: result,
+      });
+    });
+
+    // Add new Donate to Donates collection
+    app.post('/api/v1/add-donate', async (req, res) => {
+      // console.log(req.body);
+      const email = req.body.email;
+      const user = await userCollection.findOne({ email });
+      // check if user is already existing or not
+      if (!user || user.isDeleted === true) {
+        return res.status(401).json({
+          message: `This User ${req.body.email} is not exists in db`,
+        });
+      }
+      const donateData = {
+        email,
+        amount: req.body.amount,
+        userId: user._id,
+      };
+
+      // Insert clothes data into the database
+      const result = await donatesCollection.insertOne(donateData);
+
+      res.json({
+        success: true,
+        status: 201,
+        message: 'Data created successfully',
         data: result,
       });
     });

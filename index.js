@@ -31,6 +31,8 @@ async function run() {
     const donatesCollection = db.collection('donates');
     const aboutUsCollection = db.collection('aboutUs');
     const testimonialCollection = db.collection('testimonials');
+    const volunteerCollection = db.collection('volunteers');
+    const communityCollection = db.collection('communities');
 
     // User Registration
     app.post('/api/v1/register', async (req, res) => {
@@ -381,9 +383,83 @@ async function run() {
 
     // get all testimonials for the testimonial section
     app.get('/api/v1/testimonials', async (req, res) => {
-      const result = await testimonialCollection
-        .find()
-        .toArray();
+      const result = await testimonialCollection.find().toArray();
+      res.json({
+        success: true,
+        status: 200,
+        message: 'All Data Retrieved successfully',
+        data: result,
+      });
+    });
+
+    // signup as a volunteer to volunteer collection
+    app.post('/api/v1/volunteer', async (req, res) => {
+      // console.log(req.body);
+      const user = await userCollection.findOne({
+        email: req?.body?.creatorEmail,
+      });
+      // check if user is already existing or not
+      if (!user || user.isDeleted === true) {
+        return res.status(401).json({
+          message: `This User ${req.body.email} is not exists in db`,
+        });
+      }
+      const volunteerData = {
+        ...req.body,
+        userId: user._id,
+      };
+
+      // Insert clothes data into the database
+      const result = await volunteerCollection.insertOne(volunteerData);
+
+      res.json({
+        success: true,
+        status: 201,
+        message: 'Data created successfully',
+        data: result,
+      });
+    });
+
+    // get all volunteer information to show about us section
+    app.get('/api/v1/volunteers', async (req, res) => {
+      const result = await volunteerCollection.find().toArray();
+      res.json({
+        success: true,
+        status: 200,
+        message: 'All Data Retrieved successfully',
+        data: result,
+      });
+    });
+    // create community post to community collection
+    app.post('/api/v1/community', async (req, res) => {
+      // console.log(req.body);
+      const user = await userCollection.findOne({ email: req?.body?.email });
+      // check if user is already existing or not
+      if (!user || user.isDeleted === true) {
+        return res.status(401).json({
+          message: `This User ${req.body.email} is not exists in db`,
+        });
+      }
+      const communityData = {
+        ...req.body,
+        userId: user._id,
+        timestamp: new Date(),
+      };
+
+      // Insert clothes data into the database
+      const result = await communityCollection.insertOne(communityData);
+
+      res.json({
+        success: true,
+        status: 201,
+        message: 'Data created successfully',
+        data: result,
+      });
+    });
+
+    // get all volunteer information to show about us section
+    app.get('/api/v1/community', async (req, res) => {
+      const result = await communityCollection.find().toArray();
       res.json({
         success: true,
         status: 200,

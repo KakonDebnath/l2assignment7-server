@@ -33,6 +33,7 @@ async function run() {
     const testimonialCollection = db.collection('testimonials');
     const volunteerCollection = db.collection('volunteers');
     const communityCollection = db.collection('communities');
+    const supplyCollection = db.collection('supplyData');
 
     // User Registration
     app.post('/api/v1/register', async (req, res) => {
@@ -460,6 +461,17 @@ async function run() {
     // get all volunteer information to show about us section
     app.get('/api/v1/community', async (req, res) => {
       const result = await communityCollection.find().toArray();
+      res.json({
+        success: true,
+        status: 200,
+        message: 'All Data Retrieved successfully',
+        data: result,
+      });
+    });
+
+    // get all supply data for admin dashboard pei chart
+    app.get('/api/v1/supplies', async (req, res) => {
+      const result = await supplyCollection.find().toArray();
       res.json({
         success: true,
         status: 200,
